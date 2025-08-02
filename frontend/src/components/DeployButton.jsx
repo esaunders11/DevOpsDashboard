@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { Button, Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { triggerDeploy } from "../api";
 
-const DeployButton = ({ onDeploy }) => {
+const DeployButton = ({ containerName, onDeploy }) => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
 
@@ -9,7 +10,7 @@ const DeployButton = ({ onDeploy }) => {
     setLoading(true);
     setMsg(null);
     try {
-      const res = await triggerDeploy();
+      const res = await triggerDeploy(containerName);
       setMsg(res.status || res.error || "Unknown response");
       if (onDeploy) onDeploy();
     } catch (e) {
@@ -19,16 +20,25 @@ const DeployButton = ({ onDeploy }) => {
   };
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <button onClick={handleClick} disabled={loading}>
-        {loading ? "Deploying..." : "Manual Deploy"}
-      </button>
+    <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 2 }}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleClick}
+        disabled={loading}
+        sx={{ minWidth: 140 }}
+      >
+        {loading ? <CircularProgress size={24} color="inherit" /> : "Deploy"}
+      </Button>
       {msg && (
-        <div style={{ marginTop: 8, color: msg.startsWith("Deploy") ? "red" : "green" }}>
+        <Alert
+          severity={msg.toLowerCase().includes("fail") ? "error" : "success"}
+          sx={{ ml: 2 }}
+        >
           {msg}
-        </div>
+        </Alert>
       )}
-    </div>
+    </Box>
   );
 };
 

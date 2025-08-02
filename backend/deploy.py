@@ -1,15 +1,9 @@
-# backend/deploy.py
 import subprocess
 
-def pull_and_restart():
+def pull_and_restart_container(container_name: str):
     try:
-        # Pull latest changes from Git
         subprocess.run(["git", "pull"], check=True)
-
-        # Restart container(s)
-        subprocess.run(["docker-compose", "down"], check=True)
-        subprocess.run(["docker-compose", "up", "-d"], check=True)
-
-        return {"status": "Deployment triggered successfully"}
+        subprocess.run(["docker-compose", "restart", container_name], check=True)
+        return {"status": f"Deployment triggered successfully for {container_name}"}
     except subprocess.CalledProcessError as e:
         return {"error": str(e)}

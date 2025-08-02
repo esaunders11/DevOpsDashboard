@@ -16,7 +16,13 @@ export async function fetchLogs(containerName, lines = 100) {
   return res.json();
 }
 
-export async function triggerDeploy() {
-  const res = await fetch(`${API_BASE}/deploy`, {method: "POST"});
+export const triggerDeploy = async (containerName) => {
+  const res = await fetch("http://localhost:8000/deploy", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ container_name: containerName })
+  });
   return res.json();
-}
+};

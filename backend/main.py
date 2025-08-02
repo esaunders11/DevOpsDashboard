@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, HTTPException
@@ -10,12 +10,15 @@ from passlib.context import CryptContext
 from jose import jwt
 import docker
 from backend.docker_utils import get_container_statuses, get_container_logs
-from backend.metrics import get_system_metrics
+from backend.metrics import get_system_metrics, start_metrics_collector, get_metrics_history
+from backend.deploy import pull_and_restart_container
 from .database import SessionLocal, Base, engine, get_db
 import os
 from .models import User
 
 app = FastAPI()
+
+start_metrics_collector()
 
 app.add_middleware(
     CORSMiddleware,
@@ -84,6 +87,10 @@ def logs(container_name: str, lines: int = 100):
 def metrics():
     return get_system_metrics()
 
+@app.get("/metrics/history")
+def metrics_history():
+    return get_metrics_history()
+
 @app.post("/deploy")
-def deploy():
-    return 
+def deploy(container_name: str = Body(..., embed=True)):
+    return pull_and_restart_container(container_name)
